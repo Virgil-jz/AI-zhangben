@@ -94,5 +94,18 @@ async function main() {
   var keys = Object.keys(history).sort();
   keys.slice(0, Math.max(0, keys.length - 30)).forEach(function(k){delete history[k];});
   fs.writeFileSync(DATA_FILE, JSON.stringify(history, null, 2));
+
+  // 推送到 GitHub Pages
+  try {
+    var cp = require('child_process');
+    cp.execSync('git add 账本.json && git commit -m \"' + today + '\" && git push origin main', {
+      cwd: __dirname,
+      stdio: 'pipe',
+      timeout: 30000
+    });
+    console.log('GitHub: ✓ 已推送');
+  } catch(e) {
+    console.log('GitHub: ✗ ' + String(e.stderr || e.message).slice(0, 100));
+  }
 }
 main().catch(function(e){console.error(e.message);});
